@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane fx:id="room" prefHeight="114.0" prefWidth="185.0" style="-fx-border-color:black;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1">
+    <children>
+        <Label layoutX="7.0" layoutY="6.0" text="Игра">
+            <font>
+                <Font size="20.0" />
+            </font>
+        </Label>
+        <Label layoutX="60.0" layoutY="13.0" text="Имя пользователя">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+        <Label layoutX="4.0" layoutY="49.0" text="Игроков:" textFill="RED" />
+        <Label layoutX="134.0" layoutY="49.0" text="1/2" textFill="RED" />
+    </children>
+    <opaqueInsets>
+        <Insets />
+    </opaqueInsets>
+    <cursor>
+        <Cursor fx:constant="DEFAULT" />
+    </cursor>
+    <effect>
+        <Bloom />
+    </effect></Pane>
