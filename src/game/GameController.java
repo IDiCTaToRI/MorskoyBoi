@@ -8,6 +8,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import sample.Main;
+import messagesfromserver.MessageAboutAttack;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -56,7 +58,7 @@ public class GameController implements Initializable {
         for (int i = 1; i < allyGridPane.getChildren().size(); i++) {
             Node node = allyGridPane.getChildren().get(i);
             if (field.charAt(i - 1) == '1') {
-                node.setStyle("-fx-background-color: green");
+                node.setStyle("-fx-background-image:url('/images/battleship1.jpg' ); -fx-background-size: stretch; -fx-background-position: center center; ");
             }
         }
     }
@@ -66,12 +68,12 @@ public class GameController implements Initializable {
             Node node = enemyGridPane.getChildren().get(i);
             node.setOnMouseEntered(e -> {
                 if (!node.getStyle().contains("red") && !node.getStyle().contains("black") && !node.getStyle().contains("grey")) {
-                    node.setStyle("-fx-background-color: red");
+                    node.setStyle("-fx-background-image: url('/images/aim.jpg'); -fx-background-size: stretch; -fx-background-position: center center; ");
                 }
             });
             node.setOnMouseExited(e -> {
                 if (!node.getStyle().contains("black") && (!node.getStyle().contains("grey"))) {
-                    node.setStyle("-fx-background-color: default");
+                    node.setStyle("-fx-background-image: default");
                 }
             });
         }
