@@ -38,7 +38,85 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        name = "user" + new Random().nextInt(99);
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("connect.fxml"));
+        root = loader.load();
+        scene = new Scene(root);
 
+        new Thread(() -> {
+            while (ip == null) {
+                System.out.println("thread ip " + ip);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Platform.runLater(() -> {
+                try {
+                    socket = new Socket(ip, 8080);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    out = new ObjectOutputStream(socket.getOutputStream());
+                    in = new ObjectInputStream(socket.getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                FXMLLoader loader2 = new FXMLLoader();
+                loader2.setController(new Controller());
+                loader2.setLocation(getClass().getResource("sample.fxml"));
+                scene.getWindow().hide();
+                Parent root = null;
+                try {
+                    root = loader2.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                scene = new Scene(root);
+                Stage stage = new Stage();
+                stage.setTitle("Выбор комнаты");
+                stage.setScene(scene);
+                stage.show();
+            });
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            while (true) {
+                try {
+                    Object input;
+                    input = in.readObject();
+                    if (input instanceof ArrayList) {
+                        returnedMessage = input;
+                        continue;
+                    }
+                    returnedMessage = input;
+                    if (input.equals("Ready")) {
+                        goToBattleWindow();
+                    }
+                    else if (((String)input).contains("new hit on")) {
+                        attackedOn(Integer.parseInt(((String)input).split(" ")[3]));
+                    }
+                    else if (input.equals("Победа вместо обеда")) {
+                        victoryBlock();
+                        Platform.runLater(() -> {
+                            turnLabel.setText("Вы победили!");
+                        });
+                    }
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+
+        primaryStage.setTitle("Выбор комнаты");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
     public static Object sendReturnableMessage(Object message) throws IOException, ClassNotFoundException, InterruptedException {
         if (!firstTime) {
@@ -73,6 +151,59 @@ public class Main extends Application {
         for (Node node: enemyGridPane.getChildren()) {
             node.setOnMouseClicked(e -> {});
         }
+    }
+    public static void sendMessageToServer(Object message) throws IOException {
+        out.writeObject(message);
+    }
+    public static void goToBattleWindow() {
+        Platform.runLater(
+                () -> {
+                    FXMLLoader loader = new FXMLLoader();
+                    loader.setLocation(SeaBattleBoardController.class.getResource("/game/game.fxml"));
+                    Parent root = null;
+                    try {
+                        root = loader.load();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    Stage stage = new Stage();
+                    stage.setTitle("Поле боя");
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                    window.getScene().getWindow().hide();
+                }
+        );
+    }
+    private static void attackedOn(int attackedIndex) throws IOException {
+        Node attackedNode = allyGridPane.getChildren().get(attackedIndex + 1);
+        if (attackedNode.getStyle().contains("battleship1")) {
+            attackedNode.setStyle("-fx-background-color: red");
+        }
+        else if (!attackedNode.getStyle().contains("battleship1")) {
+            attackedNode.setStyle("-fx-background-color: black");
+            unblock();
+        }
+        if (!checkIfAnyAlive()) {
+            victoryBlock();
+            Platform.runLater(() -> turnLabel.setText("Все ваши корабли уничтожены. Вы проиграли."));
+            sendMessageToServer(name + " dead");
+        }
+    }
+    private static boolean checkIfAnyAlive() {
+        for (Node node: allyGridPane.getChildren()) {
+            if (node.getStyle().contains("battleship1")) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private static void victoryBlock() {
+        for (Node node: enemyGridPane.getChildren()) {
+            node.setOnMouseClicked(e -> {});
+        }
+    }
+    public static void main(String[] args) {
+        launch(args);
     }
 }
 
